@@ -6,6 +6,11 @@ import fs from "fs";
 
 const imageQuality = 70;
 sharp.cache(false);
+const SUPPORTED_FORMATS = ["png", "jpeg", "webp"];
+
+const checkIfFormatSupported = (format: string | undefined) => {
+  return format ? SUPPORTED_FORMATS.includes(format) : false;
+};
 
 export function activate(context: vscode.ExtensionContext) {
   // Use the console to output diagnostic information (console.log) and errors (console.error)
@@ -90,6 +95,10 @@ export function activate(context: vscode.ExtensionContext) {
           for (const resource of commandArgs[1]) {
             const meta = await sharp(resource.fsPath).metadata();
 
+            if (!checkIfFormatSupported(meta.format)) {
+              continue;
+            }
+
             const params: sharp.ResizeOptions = {};
             if (meta.width && meta.height) {
               if (meta.width > meta.height) {
@@ -116,10 +125,14 @@ export function activate(context: vscode.ExtensionContext) {
       // console.log(commandArgs);
       if (commandArgs[1][0] instanceof vscode.Uri) {
         for (const resource of commandArgs[1]) {
+          const { format } = await sharp(resource.fsPath).metadata();
+          if (!checkIfFormatSupported(format)) {
+            continue;
+          }
           const buffer = await sharp(resource.fsPath)
             .webp({ quality: imageQuality })
             .toBuffer();
-            const webpPath = resource.fsPath.replace(/(png|jpg|jpeg)$/, 'webp');
+          const webpPath = resource.fsPath.replace(/(png|jpg|jpeg)$/, "webp");
 
           fs.writeFileSync(webpPath, buffer);
         }
