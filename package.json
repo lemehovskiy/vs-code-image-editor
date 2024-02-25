@@ -3,7 +3,7 @@
   "displayName": "Image editor",
   "publisher": "lemehovskiy",
   "description": "Visual Studio Code extension for basic image edit operations like converting to WebP, compression, resizing, rotate.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "icon": "resources/logo.png",
   "engines": {
     "vscode": "^1.86.0"
