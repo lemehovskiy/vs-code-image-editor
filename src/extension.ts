@@ -99,9 +99,12 @@ export function activate(context: vscode.ExtensionContext) {
               continue;
             }
 
+            const inputWidth = Number(width);
+            const inputHeigh = Number(height);
+
             const params: sharp.ResizeOptions = {};
             if (meta.width && meta.height) {
-              if (meta.width > meta.height) {
+              if (meta.width / inputWidth > meta.height / inputHeigh) {
                 params.width = Number(width);
               } else {
                 params.height = Number(height);
