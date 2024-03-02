@@ -4,12 +4,29 @@ import * as vscode from "vscode";
 import sharp from "sharp";
 import fs from "fs";
 
-const imageQuality = 70;
 sharp.cache(false);
 const SUPPORTED_FORMATS = ["png", "jpeg", "webp"];
 
 const checkIfFormatSupported = (format: string | undefined) => {
   return format ? SUPPORTED_FORMATS.includes(format) : false;
+};
+
+const QUALITY = vscode.workspace
+  .getConfiguration()
+  .get("image-editor.quality") as number;
+
+const OVERWRITE_ORIGINAL = vscode.workspace
+  .getConfiguration()
+  .get("image-editor.overwrite-original") as boolean;
+
+let writeToFile = (path: string, buffer: Buffer) => {
+  let newPath = path;
+
+  if (!OVERWRITE_ORIGINAL) {
+    newPath = newPath = path.replace(/(\..+)$/, " copy$1");
+  }
+
+  fs.writeFileSync(newPath, buffer);
 };
 
 export function activate(context: vscode.ExtensionContext) {
@@ -51,20 +68,20 @@ export function activate(context: vscode.ExtensionContext) {
 
           if (format === "png") {
             buffer = await sharp(resource.fsPath)
-              .png({ quality: imageQuality })
+              .png({ quality: QUALITY })
               .toBuffer();
           } else if (format === "jpeg") {
             buffer = await sharp(resource.fsPath)
-              .jpeg({ quality: imageQuality })
+              .jpeg({ quality: QUALITY })
               .toBuffer();
           } else if (format === "webp") {
             buffer = await sharp(resource.fsPath)
-              .webp({ quality: imageQuality })
+              .webp({ quality: QUALITY })
               .toBuffer();
           }
 
           if (buffer) {
-            fs.writeFileSync(resource.fsPath, buffer);
+            writeToFile(resource.fsPath, buffer);
           }
         }
       }
@@ -112,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
               const buffer = await sharp(resource.fsPath)
                 .resize(params)
                 .toBuffer();
-              fs.writeFileSync(resource.fsPath, buffer);
+              writeToFile(resource.fsPath, buffer);
             }
           }
         }
@@ -133,7 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
             continue;
           }
           const buffer = await sharp(resource.fsPath)
-            .webp({ quality: imageQuality })
+            .webp({ quality: QUALITY })
             .toBuffer();
           const webpPath = resource.fsPath.replace(/(png|jpg|jpeg)$/, "webp");
 

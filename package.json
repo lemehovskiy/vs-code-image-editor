@@ -68,7 +68,22 @@
         "id": "image-editor.ImageEditor",
         "label": "Image Editor"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Image editor",
+      "properties": {
+        "image-editor.quality": {
+          "type": "number",
+          "default": 80,
+          "description": "Quality, integer 1-100 (optional, default 80)"
+        },
+        "image-editor.overwrite-original": {
+          "type": "boolean",
+          "default": true,
+          "description": "Should a file be overwritten after commands resize and compress (optional, default true)"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
