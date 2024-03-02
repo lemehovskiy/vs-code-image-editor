@@ -14,6 +14,7 @@ The Image Editor extension for Visual Studio Code provides convenient tools for 
 1. **Select Images:** Right-click on one or more images in the VS Code explorer.
 2. **Select Image Editor:** Choose the "Image Editor" option from the context menu.
 3. **Execute Commands:** Select from available commands like rotate, compress, convert, or resize.
+![feature X](https://github.com/lemehovskiy/vs-code-image-editor/blob/main/images/demo.gif?raw=true)
 
 ## Configuration
 Settings for the Image Editor extension can be configured in the `settings.json` file of your Visual Studio Code workspace.
