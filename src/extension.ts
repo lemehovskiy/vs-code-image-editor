@@ -2,49 +2,18 @@ import * as vscode from "vscode";
 import sharp from "sharp";
 import fs from "fs";
 import { showMessageOfOperationResult } from "./utils/showMessageOfOperationResult";
-import { SUPPORTED_FORMATS } from "./constants";
 import { OPERATIONS_TYPES } from "./types";
+import {
+  getQualitySetting,
+  checkIfFormatSupported,
+} from "./utils/getSettingsHelpers";
+import { rotate } from "./operations/rotate";
+import { writeToFile } from "./utils/writeToFile";
 
 sharp.cache(false);
 
-const checkIfFormatSupported = (format: string | undefined) => {
-  return format ? SUPPORTED_FORMATS.includes(format) : false;
-};
-
-const getQualitySetting = () =>
-  vscode.workspace.getConfiguration().get("image-editor.quality") as number;
-
-const getOverwriteOriginalSetting = () =>
-  vscode.workspace
-    .getConfiguration()
-    .get("image-editor.overwrite-original") as boolean;
-
-let writeToFile = (path: string, buffer: Buffer) => {
-  let newPath = path;
-  const OVERWRITE_ORIGINAL = getOverwriteOriginalSetting();
-  if (!OVERWRITE_ORIGINAL) {
-    newPath = newPath = path.replace(/(\..+)$/, " copy$1");
-  }
-
-  fs.writeFileSync(newPath, buffer);
-};
-
-let rotate = async (selectedFiles: Array<vscode.Uri>, deg: number) => {
-  let processedFiles = 0;
-
-  if (selectedFiles[0] instanceof vscode.Uri) {
-    for (const resource of selectedFiles) {
-      const buffer = await sharp(resource.fsPath).rotate(deg).toBuffer();
-      fs.writeFileSync(resource.fsPath, buffer);
-      processedFiles++;
-    }
-  }
-
-  return processedFiles;
-};
-
 export function activate(context: vscode.ExtensionContext) {
-  let rotateLeft = vscode.commands.registerCommand(
+  const rotateLeft = vscode.commands.registerCommand(
     "image-editor.rotateLeft",
     async (_currentFile, selectedFiles) => {
       const result = await rotate(selectedFiles, -90);
@@ -52,7 +21,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  let rotateRight = vscode.commands.registerCommand(
+  const rotateRight = vscode.commands.registerCommand(
     "image-editor.rotateRight",
     async (_currentFile, selectedFiles) => {
       const result = await rotate(selectedFiles, 90);
@@ -60,7 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  let compress = vscode.commands.registerCommand(
+  const compress = vscode.commands.registerCommand(
     "image-editor.compress",
     async (...commandArgs) => {
       vscode.window.showInformationMessage("Compressed successfully");
@@ -88,14 +57,14 @@ export function activate(context: vscode.ExtensionContext) {
           }
 
           if (buffer) {
-            writeToFile(resource.fsPath, buffer);
+            writeToFile(resource.fsPath, buffer, OPERATIONS_TYPES.Compress);
           }
         }
       }
     }
   );
 
-  let resize = vscode.commands.registerCommand(
+  const resize = vscode.commands.registerCommand(
     "image-editor.resize",
     async (...commandArgs) => {
       vscode.window.showInformationMessage("Resized successfully");
@@ -136,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
               const buffer = await sharp(resource.fsPath)
                 .resize(params)
                 .toBuffer();
-              writeToFile(resource.fsPath, buffer);
+              writeToFile(resource.fsPath, buffer, OPERATIONS_TYPES.Resize);
             }
           }
         }
@@ -144,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  let convertToWebP = vscode.commands.registerCommand(
+  const convertToWebP = vscode.commands.registerCommand(
     "image-editor.convertToWebP",
     async (...commandArgs) => {
       vscode.window.showInformationMessage("Converted successfully");
