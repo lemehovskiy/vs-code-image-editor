@@ -1,9 +1,11 @@
 import * as vscode from "vscode";
 import sharp from "sharp";
 import fs from "fs";
+import { showMessageOfOperationResult } from "./utils/showMessageOfOperationResult";
+import { SUPPORTED_FORMATS } from "./constants";
+import { OPERATIONS_TYPES } from "./types";
 
 sharp.cache(false);
-const SUPPORTED_FORMATS = ["png", "jpeg", "webp", "gif"];
 
 const checkIfFormatSupported = (format: string | undefined) => {
   return format ? SUPPORTED_FORMATS.includes(format) : false;
@@ -28,28 +30,33 @@ let writeToFile = (path: string, buffer: Buffer) => {
 };
 
 let rotate = async (selectedFiles: Array<vscode.Uri>, deg: number) => {
+  let processedFiles = 0;
+
   if (selectedFiles[0] instanceof vscode.Uri) {
     for (const resource of selectedFiles) {
       const buffer = await sharp(resource.fsPath).rotate(deg).toBuffer();
       fs.writeFileSync(resource.fsPath, buffer);
+      processedFiles++;
     }
   }
+
+  return processedFiles;
 };
 
 export function activate(context: vscode.ExtensionContext) {
   let rotateLeft = vscode.commands.registerCommand(
     "image-editor.rotateLeft",
     async (_currentFile, selectedFiles) => {
-      await rotate(selectedFiles, -90);
-      vscode.window.showInformationMessage("Rotated Left successfully");
+      const result = await rotate(selectedFiles, -90);
+      showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
     }
   );
 
   let rotateRight = vscode.commands.registerCommand(
     "image-editor.rotateRight",
     async (_currentFile, selectedFiles) => {
-      await rotate(selectedFiles, 90);
-      vscode.window.showInformationMessage("Rotated Right successfully");
+      const result = await rotate(selectedFiles, 90);
+      showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
     }
   );
 
