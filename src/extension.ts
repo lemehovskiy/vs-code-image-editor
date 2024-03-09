@@ -3,23 +3,23 @@ import sharp from "sharp";
 import fs from "fs";
 
 sharp.cache(false);
-const SUPPORTED_FORMATS = ["png", "jpeg", "webp", 'gif'];
+const SUPPORTED_FORMATS = ["png", "jpeg", "webp", "gif"];
 
 const checkIfFormatSupported = (format: string | undefined) => {
   return format ? SUPPORTED_FORMATS.includes(format) : false;
 };
 
-const QUALITY = vscode.workspace
-  .getConfiguration()
-  .get("image-editor.quality") as number;
+const getQualitySetting = () =>
+  vscode.workspace.getConfiguration().get("image-editor.quality") as number;
 
-const OVERWRITE_ORIGINAL = vscode.workspace
-  .getConfiguration()
-  .get("image-editor.overwrite-original") as boolean;
+const getOverwriteOriginalSetting = () =>
+  vscode.workspace
+    .getConfiguration()
+    .get("image-editor.overwrite-original") as boolean;
 
 let writeToFile = (path: string, buffer: Buffer) => {
   let newPath = path;
-
+  const OVERWRITE_ORIGINAL = getOverwriteOriginalSetting();
   if (!OVERWRITE_ORIGINAL) {
     newPath = newPath = path.replace(/(\..+)$/, " copy$1");
   }
@@ -59,6 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage("Compressed successfully");
 
       if (commandArgs[1][0] instanceof vscode.Uri) {
+        const QUALITY = getQualitySetting();
+
         for (const resource of commandArgs[1]) {
           const { format } = await sharp(resource.fsPath).metadata();
 
@@ -141,6 +143,8 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage("Converted successfully");
 
       if (commandArgs[1][0] instanceof vscode.Uri) {
+        const QUALITY = getQualitySetting();
+
         for (const resource of commandArgs[1]) {
           const { format } = await sharp(resource.fsPath).metadata();
           if (!checkIfFormatSupported(format)) {
