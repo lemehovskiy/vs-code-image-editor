@@ -18,6 +18,20 @@ The Image Editor extension for Visual Studio Code provides convenient tools for 
 ## Example
 ![feature X](https://github.com/lemehovskiy/vs-code-image-editor/blob/main/images/demo.gif?raw=true)
 
+## Supported Files
+
+This extension supports the following file types for conversion and other commands:
+
+### Convert to WebP
+- **Input Formats:** PNG, JPEG, GIF
+- **Output Format:** WebP
+
+### Other Commands
+- **Input Formats:** PNG, JPG, JPEG, GIF
+
+### Handling Unsupported Files
+- If you select multiple files and some of them are not supported, they will be skipped during the conversion process.
+
 ## Configuration
 Settings for the Image Editor extension can be configured in the `settings.json` file of your Visual Studio Code workspace.
 
