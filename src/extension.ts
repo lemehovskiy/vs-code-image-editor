@@ -1,11 +1,9 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from "vscode";
 import sharp from "sharp";
 import fs from "fs";
 
 sharp.cache(false);
-const SUPPORTED_FORMATS = ["png", "jpeg", "webp"];
+const SUPPORTED_FORMATS = ["png", "jpeg", "webp", 'gif'];
 
 const checkIfFormatSupported = (format: string | undefined) => {
   return format ? SUPPORTED_FORMATS.includes(format) : false;
@@ -29,29 +27,29 @@ let writeToFile = (path: string, buffer: Buffer) => {
   fs.writeFileSync(newPath, buffer);
 };
 
-export function activate(context: vscode.ExtensionContext) {
-  // Use the console to output diagnostic information (console.log) and errors (console.error)
-  // This line of code will only be executed once when your extension is activated
-  console.log('Congratulations, your extension "image-editor" is now active!');
+let rotate = async (selectedFiles: Array<vscode.Uri>, deg: number) => {
+  if (selectedFiles[0] instanceof vscode.Uri) {
+    for (const resource of selectedFiles) {
+      const buffer = await sharp(resource.fsPath).rotate(deg).toBuffer();
+      fs.writeFileSync(resource.fsPath, buffer);
+    }
+  }
+};
 
-  let disposable = vscode.commands.registerCommand(
-    "image-editor.helloWorld",
-    () => {
-      vscode.window.showInformationMessage("Hello World from image-editor!");
+export function activate(context: vscode.ExtensionContext) {
+  let rotateLeft = vscode.commands.registerCommand(
+    "image-editor.rotateLeft",
+    async (_currentFile, selectedFiles) => {
+      await rotate(selectedFiles, -90);
+      vscode.window.showInformationMessage("Rotated Left successfully");
     }
   );
 
-  let rotate = vscode.commands.registerCommand(
-    "image-editor.rotate",
-    async (...commandArgs) => {
-      vscode.window.showInformationMessage("Rotated successfully");
-
-      if (commandArgs[1][0] instanceof vscode.Uri) {
-        for (const resource of commandArgs[1]) {
-          const buffer = await sharp(resource.fsPath).rotate(90).toBuffer();
-          fs.writeFileSync(resource.fsPath, buffer);
-        }
-      }
+  let rotateRight = vscode.commands.registerCommand(
+    "image-editor.rotateRight",
+    async (_currentFile, selectedFiles) => {
+      await rotate(selectedFiles, 90);
+      vscode.window.showInformationMessage("Rotated Right successfully");
     }
   );
 
@@ -142,7 +140,6 @@ export function activate(context: vscode.ExtensionContext) {
     async (...commandArgs) => {
       vscode.window.showInformationMessage("Converted successfully");
 
-      // console.log(commandArgs);
       if (commandArgs[1][0] instanceof vscode.Uri) {
         for (const resource of commandArgs[1]) {
           const { format } = await sharp(resource.fsPath).metadata();
@@ -152,7 +149,10 @@ export function activate(context: vscode.ExtensionContext) {
           const buffer = await sharp(resource.fsPath)
             .webp({ quality: QUALITY })
             .toBuffer();
-          const webpPath = resource.fsPath.replace(/(png|jpg|jpeg)$/, "webp");
+          const webpPath = resource.fsPath.replace(
+            /(png|jpg|jpeg|gif)$/,
+            "webp"
+          );
 
           fs.writeFileSync(webpPath, buffer);
         }
@@ -160,12 +160,11 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
-  context.subscriptions.push(disposable);
-  context.subscriptions.push(rotate);
+  context.subscriptions.push(rotateLeft);
+  context.subscriptions.push(rotateRight);
   context.subscriptions.push(compress);
   context.subscriptions.push(resize);
   context.subscriptions.push(convertToWebP);
 }
 
-// This method is called when your extension is deactivated
 export function deactivate() {}

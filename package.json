@@ -20,8 +20,12 @@
   "contributes": {
     "commands": [
       {
-        "command": "image-editor.rotate",
-        "title": "Rotate 90"
+        "command": "image-editor.rotateLeft",
+        "title": "Rotate Left"
+      },
+      {
+        "command": "image-editor.rotateRight",
+        "title": "Rotate Right"
       },
       {
         "command": "image-editor.resize",
@@ -45,20 +49,24 @@
       ],
       "image-editor.ImageEditor": [
         {
-          "command": "image-editor.rotate",
-          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|bmp|ico|webp)$/i"
+          "command": "image-editor.rotateLeft",
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
+        },
+        {
+          "command": "image-editor.rotateRight",
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
         },
         {
           "command": "image-editor.resize",
-          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|bmp|ico|webp)$/i"
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
         },
         {
           "command": "image-editor.compress",
-          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|webp)$/i"
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
         },
         {
           "command": "image-editor.convertToWebP",
-          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg)$/i"
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif)$/i"
         }
       ]
     },
