@@ -5,7 +5,7 @@ import fs from "fs";
 export const writeToFile = (
   path: string,
   buffer: Buffer,
-  operationType: OPERATIONS_TYPES
+  operationType: OPERATIONS_TYPES,
 ) => {
   let newPath = path;
 

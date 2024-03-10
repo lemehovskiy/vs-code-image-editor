@@ -9,7 +9,7 @@ export const rotate = async (selectedFiles: Array<vscode.Uri>, deg: number) => {
     async (path: string) => {
       const buffer = await sharp(path).rotate(deg).toBuffer();
       fs.writeFileSync(path, buffer);
-    }
+    },
   );
 
   return processedFiles;

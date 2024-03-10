@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     async (_currentFile, selectedFiles) => {
       const result = await rotate(selectedFiles, -90);
       showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
-    }
+    },
   );
 
   const rotateRight = vscode.commands.registerCommand(
@@ -26,7 +26,7 @@ export function activate(context: vscode.ExtensionContext) {
     async (_currentFile, selectedFiles) => {
       const result = await rotate(selectedFiles, 90);
       showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
-    }
+    },
   );
 
   const compress = vscode.commands.registerCommand(
@@ -61,7 +61,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
       }
-    }
+    },
   );
 
   const resize = vscode.commands.registerCommand(
@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
           }
         }
       }
-    }
+    },
   );
 
   const convertToWebP = vscode.commands.registerCommand(
@@ -131,13 +131,13 @@ export function activate(context: vscode.ExtensionContext) {
             .toBuffer();
           const webpPath = resource.fsPath.replace(
             /(png|jpg|jpeg|gif)$/,
-            "webp"
+            "webp",
           );
 
           fs.writeFileSync(webpPath, buffer);
         }
       }
-    }
+    },
   );
 
   context.subscriptions.push(rotateLeft);

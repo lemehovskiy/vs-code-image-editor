@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 
 export const filesWalker = async (
   selectedFiles: Array<vscode.Uri>,
-  callback: (path: string) => Promise<void>
+  callback: (path: string) => Promise<void>,
 ) => {
   let processedFiles = 0;
   if (selectedFiles[0] instanceof vscode.Uri) {

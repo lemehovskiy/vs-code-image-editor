@@ -35,12 +35,12 @@ const getFilesCount = (numberOfFiles: number) => {
 
 export const showMessageOfOperationResult = (
   numberOfFiles: number,
-  operationType: OPERATIONS_TYPES
+  operationType: OPERATIONS_TYPES,
 ) => {
   if (numberOfFiles > 0) {
     const filesCount = getFilesCount(numberOfFiles);
     vscode.window.showInformationMessage(
-      `${filesCount} ${OPERATIONS[operationType].successMessage} successfully`
+      `${filesCount} ${OPERATIONS[operationType].successMessage} successfully`,
     );
   } else {
     vscode.window.showInformationMessage(`Nothing to ${operationType}`);
