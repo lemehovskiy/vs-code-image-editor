@@ -1,5 +1,6 @@
 import { OPERATIONS_TYPES } from "../types";
 import * as vscode from "vscode";
+import { FilesWalkerReturnType } from "./filesWalker";
 
 type OperationMessageType = {
   successMessage: string;
@@ -34,15 +35,32 @@ const getFilesCount = (numberOfFiles: number) => {
 };
 
 export const showMessageOfOperationResult = (
-  numberOfFiles: number,
+  operationResult: FilesWalkerReturnType,
   operationType: OPERATIONS_TYPES,
 ) => {
-  if (numberOfFiles > 0) {
-    const filesCount = getFilesCount(numberOfFiles);
+  const { processedFiles, errorFiles } = operationResult;
+  if (processedFiles > 0) {
+    const filesCount = getFilesCount(processedFiles);
     vscode.window.showInformationMessage(
       `${filesCount} ${OPERATIONS[operationType].successMessage} successfully`,
     );
   } else {
     vscode.window.showInformationMessage(`Nothing to ${operationType}`);
+  }
+
+  if (errorFiles.length > 0) {
+    const resultObj: Record<string, Array<string>> = {};
+
+    errorFiles.forEach(({ path, errorMessage }) => {
+      if (!resultObj[errorMessage]) {
+        resultObj[errorMessage] = [];
+      }
+      resultObj[errorMessage].push(path);
+    });
+
+    for (const [key, value] of Object.entries(resultObj)) {
+      const filesCount = getFilesCount(value.length);
+      vscode.window.showErrorMessage(`${filesCount} failed with ${key} error`);
+    }
   }
 };

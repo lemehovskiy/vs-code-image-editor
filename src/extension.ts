@@ -9,6 +9,7 @@ import {
 } from "./utils/getSettingsHelpers";
 import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
+import { filesWalker } from "./utils/filesWalker";
 
 sharp.cache(false);
 
@@ -16,51 +17,53 @@ export function activate(context: vscode.ExtensionContext) {
   const rotateLeft = vscode.commands.registerCommand(
     "image-editor.rotateLeft",
     async (_currentFile, selectedFiles) => {
-      const result = await rotate(selectedFiles, -90);
-      showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
+      const operationResult = await rotate(selectedFiles, -90);
+      showMessageOfOperationResult(
+        operationResult,
+        OPERATIONS_TYPES.RotateLeft,
+      );
     },
   );
 
   const rotateRight = vscode.commands.registerCommand(
     "image-editor.rotateRight",
     async (_currentFile, selectedFiles) => {
-      const result = await rotate(selectedFiles, 90);
-      showMessageOfOperationResult(result, OPERATIONS_TYPES.RotateRight);
+      const operationResult = await rotate(selectedFiles, 90);
+      showMessageOfOperationResult(
+        operationResult,
+        OPERATIONS_TYPES.RotateRight,
+      );
     },
   );
 
   const compress = vscode.commands.registerCommand(
     "image-editor.compress",
-    async (...commandArgs) => {
-      vscode.window.showInformationMessage("Compressed successfully");
+    async (_currentFile, selectedFiles) => {
+      const QUALITY = getQualitySetting();
 
-      if (commandArgs[1][0] instanceof vscode.Uri) {
-        const QUALITY = getQualitySetting();
-
-        for (const resource of commandArgs[1]) {
-          const { format } = await sharp(resource.fsPath).metadata();
+      const operationResult = await filesWalker(
+        selectedFiles,
+        async (path: string) => {
+          const { format } = await sharp(path).metadata();
 
           let buffer;
 
           if (format === "png") {
-            buffer = await sharp(resource.fsPath)
-              .png({ quality: QUALITY })
-              .toBuffer();
+            buffer = await sharp(path).png({ quality: QUALITY }).toBuffer();
           } else if (format === "jpeg") {
-            buffer = await sharp(resource.fsPath)
-              .jpeg({ quality: QUALITY })
-              .toBuffer();
+            buffer = await sharp(path).jpeg({ quality: QUALITY }).toBuffer();
           } else if (format === "webp") {
-            buffer = await sharp(resource.fsPath)
-              .webp({ quality: QUALITY })
-              .toBuffer();
+            buffer = await sharp(path).webp({ quality: QUALITY }).toBuffer();
+          } else {
+            throw new Error("Input file contains unsupported image format");
           }
 
           if (buffer) {
-            writeToFile(resource.fsPath, buffer, OPERATIONS_TYPES.Compress);
+            writeToFile(path, buffer, OPERATIONS_TYPES.Compress);
           }
-        }
-      }
+        },
+      );
+      showMessageOfOperationResult(operationResult, OPERATIONS_TYPES.Compress);
     },
   );
 
