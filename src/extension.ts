@@ -9,6 +9,7 @@ import {
 import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
 import { filesWalker } from "./utils/filesWalker";
+import { bulkShowInputBox } from "./utils/bulkshowInputBox";
 
 sharp.cache(false);
 
@@ -70,19 +71,13 @@ export function activate(context: vscode.ExtensionContext) {
     "image-editor.resize",
     async (_currentFile, selectedFiles) => {
       if (selectedFiles[0] instanceof vscode.Uri) {
-        const width = await vscode.window.showInputBox({
-          placeHolder: "Please enter a max width",
-          validateInput: (text) => {
-            return text !== "" ? null : "Empty string is not allowed";
-          },
-        });
-
-        const height = await vscode.window.showInputBox({
-          placeHolder: "Please enter a max heigth",
-          validateInput: (text) => {
-            return text !== "" ? null : "Empty string is not allowed";
-          },
-        });
+        const [width, height] = await bulkShowInputBox(
+          [
+            { placeholder: "Please enter a max width" },
+            { placeholder: "Please enter a max height" },
+          ],
+          "number",
+        );
 
         if (!width || !height) return;
 
@@ -95,12 +90,9 @@ export function activate(context: vscode.ExtensionContext) {
               return;
             }
 
-            const inputWidth = Number(width);
-            const inputHeigh = Number(height);
-
             const params: sharp.ResizeOptions = {};
             if (meta.width && meta.height) {
-              if (meta.width / inputWidth > meta.height / inputHeigh) {
+              if (meta.width / width > meta.height / height) {
                 params.width = Number(width);
               } else {
                 params.height = Number(height);
