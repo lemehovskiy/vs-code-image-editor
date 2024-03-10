@@ -1,6 +1,5 @@
 import * as vscode from "vscode";
 import sharp from "sharp";
-import fs from "fs";
 import { showMessageOfOperationResult } from "./utils/showMessageOfOperationResult";
 import { OPERATIONS_TYPES } from "./types";
 import {
@@ -118,28 +117,28 @@ export function activate(context: vscode.ExtensionContext) {
 
   const convertToWebP = vscode.commands.registerCommand(
     "image-editor.convertToWebP",
-    async (...commandArgs) => {
-      vscode.window.showInformationMessage("Converted successfully");
+    async (_currentFile, selectedFiles) => {
+      const QUALITY = getQualitySetting();
 
-      if (commandArgs[1][0] instanceof vscode.Uri) {
-        const QUALITY = getQualitySetting();
-
-        for (const resource of commandArgs[1]) {
-          const { format } = await sharp(resource.fsPath).metadata();
+      const operationResult = await filesWalker(
+        selectedFiles,
+        async (path: string) => {
+          const { format } = await sharp(path).metadata();
           if (!checkIfFormatSupported(format)) {
-            continue;
+            return;
           }
-          const buffer = await sharp(resource.fsPath)
+          const buffer = await sharp(path)
             .webp({ quality: QUALITY })
             .toBuffer();
-          const webpPath = resource.fsPath.replace(
-            /(png|jpg|jpeg|gif)$/,
-            "webp",
-          );
+          const webpPath = path.replace(/\..{3,4}$/, ".webp");
 
-          fs.writeFileSync(webpPath, buffer);
-        }
-      }
+          writeToFile(webpPath, buffer, OPERATIONS_TYPES.ConvertToWebP);
+        },
+      );
+      showMessageOfOperationResult(
+        operationResult,
+        OPERATIONS_TYPES.ConvertToWebP,
+      );
     },
   );
 

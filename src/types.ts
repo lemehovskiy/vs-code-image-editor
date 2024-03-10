@@ -3,5 +3,5 @@ export enum OPERATIONS_TYPES {
   "RotateRight" = "Rotate Right",
   "Compress" = "Compress",
   "Resize" = "Resize",
-  "CovertToWebP" = "Convert to WebP",
+  "ConvertToWebP" = "Convert to WebP",
 }

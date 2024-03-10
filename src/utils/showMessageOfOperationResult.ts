@@ -21,7 +21,7 @@ const OPERATIONS: OperationsMessageType = {
   [OPERATIONS_TYPES.Resize]: {
     successMessage: "Resized",
   },
-  [OPERATIONS_TYPES.CovertToWebP]: {
+  [OPERATIONS_TYPES.ConvertToWebP]: {
     successMessage: "Converted to WebP",
   },
 };
