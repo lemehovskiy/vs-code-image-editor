@@ -93,9 +93,9 @@ export function activate(context: vscode.ExtensionContext) {
             const params: sharp.ResizeOptions = {};
             if (meta.width && meta.height) {
               if (meta.width / width > meta.height / height) {
-                params.width = Number(width);
+                params.width = width;
               } else {
-                params.height = Number(height);
+                params.height = height;
               }
               const buffer = await sharp(path).resize(params).toBuffer();
               writeToFile(path, buffer, OPERATIONS_TYPES.Resize);
