@@ -69,10 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
 
   const resize = vscode.commands.registerCommand(
     "image-editor.resize",
-    async (...commandArgs) => {
-      vscode.window.showInformationMessage("Resized successfully");
-
-      if (commandArgs[1][0] instanceof vscode.Uri) {
+    async (_currentFile, selectedFiles) => {
+      if (selectedFiles[0] instanceof vscode.Uri) {
         const width = await vscode.window.showInputBox({
           placeHolder: "Please enter a max width",
           validateInput: (text) => {
@@ -87,12 +85,15 @@ export function activate(context: vscode.ExtensionContext) {
           },
         });
 
-        if (width && height) {
-          for (const resource of commandArgs[1]) {
-            const meta = await sharp(resource.fsPath).metadata();
+        if (!width || !height) return;
+
+        const operationResult = await filesWalker(
+          selectedFiles,
+          async (path: string) => {
+            const meta = await sharp(path).metadata();
 
             if (!checkIfFormatSupported(meta.format)) {
-              continue;
+              return;
             }
 
             const inputWidth = Number(width);
@@ -105,13 +106,12 @@ export function activate(context: vscode.ExtensionContext) {
               } else {
                 params.height = Number(height);
               }
-              const buffer = await sharp(resource.fsPath)
-                .resize(params)
-                .toBuffer();
-              writeToFile(resource.fsPath, buffer, OPERATIONS_TYPES.Resize);
+              const buffer = await sharp(path).resize(params).toBuffer();
+              writeToFile(path, buffer, OPERATIONS_TYPES.Resize);
             }
-          }
-        }
+          },
+        );
+        showMessageOfOperationResult(operationResult, OPERATIONS_TYPES.Resize);
       }
     },
   );
