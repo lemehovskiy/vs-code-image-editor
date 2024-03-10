@@ -9,7 +9,7 @@ import {
 import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
 import { filesWalker } from "./utils/filesWalker";
-import { bulkShowInputBox } from "./utils/bulkshowInputBox";
+import { bulkShowInputBox } from "./utils/bulkShowInputBox";
 
 sharp.cache(false);
 
