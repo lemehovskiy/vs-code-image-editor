@@ -59,9 +59,8 @@ export function activate(context: vscode.ExtensionContext) {
 
           const buffer = await getBufferByFileType(path, format, QUALITY);
 
-          if (!buffer) {
-            return;
-          }
+          if (!buffer) return;
+
           if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
             writeToFile(path, buffer.data, OPERATIONS_TYPES.Compress);
           } else {
@@ -123,10 +122,11 @@ export function activate(context: vscode.ExtensionContext) {
         selectedFiles,
         async (path: string) => {
           const { format } = await sharp(path).metadata();
+          if (!format) return;
           if (!checkIfFormatSupported(format)) {
             return;
           }
-          const buffer = await getBufferForWebP(path, QUALITY);
+          const buffer = await getBufferForWebP(path, format, QUALITY);
           if (!buffer) return;
           const webpPath = getWebPPath(path);
 
@@ -162,23 +162,30 @@ export function activate(context: vscode.ExtensionContext) {
             QUALITY,
           );
 
-          if (!compressedBuffer) {
-            return;
-          }
-
-          let resultPath = path;
-          let resultBuffer = compressedBuffer;
+          const webpBuffer = await getBufferForWebP(path, format, QUALITY);
 
           let isWebPSmaller = false;
+          let isWebPResult = false;
 
-          if (format === "png" || format === "jpeg") {
-            const webpBuffer = await getBufferForWebP(path, QUALITY);
+          let resultPath = null;
+          let resultBuffer = null;
+
+          if (compressedBuffer && webpBuffer) {
             isWebPSmaller = webpBuffer.info.size < compressedBuffer.info.size;
             if (isWebPSmaller) {
-              const webpPath = getWebPPath(path);
-              resultPath = webpPath;
+              resultPath = getWebPPath(path);
               resultBuffer = webpBuffer;
+              isWebPResult = true;
+            } else {
+              resultPath = path;
+              resultBuffer = compressedBuffer;
             }
+          } else if (webpBuffer) {
+            resultPath = getWebPPath(path);
+            resultBuffer = webpBuffer;
+            isWebPResult = true;
+          } else {
+            return;
           }
 
           if (
@@ -189,7 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
               resultBuffer.data,
               OPERATIONS_TYPES.CompressWithAutoFormat,
             );
-            if (isWebPSmaller) {
+            if (isWebPResult) {
               fs.unlinkSync(path);
             }
           } else {

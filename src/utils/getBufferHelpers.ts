@@ -1,7 +1,17 @@
 import sharp from "sharp";
-import { checkIfFormatSupported } from "./getSettingsHelpers";
+import {
+  checkIfSupportedFormatForCompress,
+  checkIfSupportedFormatForConvetingToWebP,
+} from "./getSettingsHelpers";
 
-export async function getBufferForWebP(path: string, QUALITY: number) {
+export async function getBufferForWebP(
+  path: string,
+  format: string,
+  QUALITY: number,
+) {
+  if (!checkIfSupportedFormatForConvetingToWebP(format)) {
+    return;
+  }
   const buffer = await sharp(path)
     .webp({ quality: QUALITY })
     .toBuffer({ resolveWithObject: true });
@@ -14,7 +24,7 @@ export async function getBufferByFileType(
   format: string,
   QUALITY: number,
 ) {
-  if (!checkIfFormatSupported(format)) {
+  if (!checkIfSupportedFormatForCompress(format)) {
     return;
   }
 
@@ -29,7 +39,7 @@ export async function getBufferByFileType(
       .jpeg({ quality: QUALITY })
       .toBuffer({ resolveWithObject: true });
   } else if (format === "webp") {
-    buffer = await getBufferForWebP(path, QUALITY);
+    buffer = await getBufferForWebP(path, format, QUALITY);
   } else {
     throw new Error("Input file contains unsupported image format");
   }
