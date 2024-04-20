@@ -5,11 +5,13 @@ import { OPERATIONS_TYPES } from "./types";
 import {
   getQualitySetting,
   checkIfFormatSupported,
+  getSaveLimitSetting,
 } from "./utils/getSettingsHelpers";
 import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
 import { filesWalker } from "./utils/filesWalker";
 import { bulkShowInputBox } from "./utils/bulkShowInputBox";
+import { checkIfCanReachSaveLimit } from "./utils/checkIfCanReachSaveLimit";
 
 sharp.cache(false);
 
@@ -40,6 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
     "image-editor.compress",
     async (_currentFile, selectedFiles) => {
       const QUALITY = getQualitySetting();
+      const SAVE_LIMIT = getSaveLimitSetting();
 
       const operationResult = await filesWalker(
         selectedFiles,
@@ -49,17 +52,25 @@ export function activate(context: vscode.ExtensionContext) {
           let buffer;
 
           if (format === "png") {
-            buffer = await sharp(path).png({ quality: QUALITY }).toBuffer();
+            buffer = await sharp(path)
+              .png({ quality: QUALITY })
+              .toBuffer({ resolveWithObject: true });
           } else if (format === "jpeg") {
-            buffer = await sharp(path).jpeg({ quality: QUALITY }).toBuffer();
+            buffer = await sharp(path)
+              .jpeg({ quality: QUALITY })
+              .toBuffer({ resolveWithObject: true });
           } else if (format === "webp") {
-            buffer = await sharp(path).webp({ quality: QUALITY }).toBuffer();
+            buffer = await sharp(path)
+              .webp({ quality: QUALITY })
+              .toBuffer({ resolveWithObject: true });
           } else {
             throw new Error("Input file contains unsupported image format");
           }
 
-          if (buffer) {
-            writeToFile(path, buffer, OPERATIONS_TYPES.Compress);
+          if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
+            writeToFile(path, buffer.data, OPERATIONS_TYPES.Compress);
+          } else {
+            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
           }
         },
       );
@@ -111,6 +122,7 @@ export function activate(context: vscode.ExtensionContext) {
     "image-editor.convertToWebP",
     async (_currentFile, selectedFiles) => {
       const QUALITY = getQualitySetting();
+      const SAVE_LIMIT = getSaveLimitSetting();
 
       const operationResult = await filesWalker(
         selectedFiles,
@@ -121,10 +133,14 @@ export function activate(context: vscode.ExtensionContext) {
           }
           const buffer = await sharp(path)
             .webp({ quality: QUALITY })
-            .toBuffer();
+            .toBuffer({ resolveWithObject: true });
           const webpPath = path.replace(/\..{3,4}$/, ".webp");
 
-          writeToFile(webpPath, buffer, OPERATIONS_TYPES.ConvertToWebP);
+          if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
+            writeToFile(webpPath, buffer.data, OPERATIONS_TYPES.Compress);
+          } else {
+            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
+          }
         },
       );
       showMessageOfOperationResult(

@@ -5,10 +5,14 @@ export const checkIfFormatSupported = (format: string | undefined) => {
   return format ? SUPPORTED_FORMATS.includes(format) : false;
 };
 
-export const getQualitySetting = () =>
-  vscode.workspace.getConfiguration().get("image-editor.quality") as number;
+const getConfiguration = (key: string) => {
+  return vscode.workspace.getConfiguration().get(`image-editor.${key}`);
+};
+
+export const getQualitySetting = () => getConfiguration("quality") as number;
 
 export const getOverwriteOriginalSetting = () =>
-  vscode.workspace
-    .getConfiguration()
-    .get("image-editor.overwrite-original") as boolean;
+  getConfiguration("overwrite-original") as boolean;
+
+export const getSaveLimitSetting = () =>
+  getConfiguration("save-limit") as number;
