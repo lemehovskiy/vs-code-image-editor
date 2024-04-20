@@ -11,13 +11,13 @@ import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
 import { filesWalker } from "./utils/filesWalker";
 import { bulkShowInputBox } from "./utils/bulkShowInputBox";
-import { checkIfCanReachSaveLimit } from "./utils/checkIfCanReachSaveLimit";
 import {
   getBufferByFileType,
   getBufferForWebP,
 } from "./utils/getBufferHelpers";
 import fs from "fs";
 import { getWebPPath } from "./utils/getWebPPath";
+import { writeFileWhenPassSaveLimit } from "./utils/writeFileWhenPassSaveLimit";
 
 sharp.cache(false);
 
@@ -61,11 +61,13 @@ export function activate(context: vscode.ExtensionContext) {
 
           if (!buffer) return;
 
-          if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
-            writeToFile(path, buffer.data, OPERATIONS_TYPES.Compress);
-          } else {
-            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
-          }
+          writeFileWhenPassSaveLimit(
+            path,
+            path,
+            buffer,
+            SAVE_LIMIT,
+            OPERATIONS_TYPES.Compress,
+          );
         },
       );
       showMessageOfOperationResult(operationResult, OPERATIONS_TYPES.Compress);
@@ -130,11 +132,15 @@ export function activate(context: vscode.ExtensionContext) {
           if (!buffer) return;
           const webpPath = getWebPPath(path);
 
-          if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
-            writeToFile(webpPath, buffer.data, OPERATIONS_TYPES.Compress);
-          } else {
-            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
-          }
+          writeFileWhenPassSaveLimit(
+            path,
+            webpPath,
+            buffer,
+            SAVE_LIMIT,
+            OPERATIONS_TYPES.ConvertToWebP,
+          );
+
+          fs.unlinkSync(path);
         },
       );
       showMessageOfOperationResult(
@@ -188,19 +194,16 @@ export function activate(context: vscode.ExtensionContext) {
             return;
           }
 
-          if (
-            checkIfCanReachSaveLimit(path, resultBuffer.info.size, SAVE_LIMIT)
-          ) {
-            writeToFile(
-              resultPath,
-              resultBuffer.data,
-              OPERATIONS_TYPES.CompressWithAutoFormat,
-            );
-            if (isWebPResult) {
-              fs.unlinkSync(path);
-            }
-          } else {
-            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
+          writeFileWhenPassSaveLimit(
+            path,
+            resultPath,
+            resultBuffer,
+            SAVE_LIMIT,
+            OPERATIONS_TYPES.CompressWithAutoFormat,
+          );
+
+          if (isWebPResult) {
+            fs.unlinkSync(path);
           }
         },
       );
