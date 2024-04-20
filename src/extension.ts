@@ -17,6 +17,7 @@ import {
   getBufferForWebP,
 } from "./utils/getBufferHelpers";
 import fs from "fs";
+import { getWebPPath } from "./utils/getWebPPath";
 
 sharp.cache(false);
 
@@ -54,24 +55,13 @@ export function activate(context: vscode.ExtensionContext) {
         async (path: string) => {
           const { format } = await sharp(path).metadata();
 
-          let buffer;
+          if (!format) return;
 
-          if (format === "png") {
-            buffer = await sharp(path)
-              .png({ quality: QUALITY })
-              .toBuffer({ resolveWithObject: true });
-          } else if (format === "jpeg") {
-            buffer = await sharp(path)
-              .jpeg({ quality: QUALITY })
-              .toBuffer({ resolveWithObject: true });
-          } else if (format === "webp") {
-            buffer = await sharp(path)
-              .webp({ quality: QUALITY })
-              .toBuffer({ resolveWithObject: true });
-          } else {
-            throw new Error("Input file contains unsupported image format");
+          const buffer = await getBufferByFileType(path, format, QUALITY);
+
+          if (!buffer) {
+            return;
           }
-
           if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
             writeToFile(path, buffer.data, OPERATIONS_TYPES.Compress);
           } else {
@@ -136,10 +126,9 @@ export function activate(context: vscode.ExtensionContext) {
           if (!checkIfFormatSupported(format)) {
             return;
           }
-          const buffer = await sharp(path)
-            .webp({ quality: QUALITY })
-            .toBuffer({ resolveWithObject: true });
-          const webpPath = path.replace(/\..{3,4}$/, ".webp");
+          const buffer = await getBufferForWebP(path, QUALITY);
+          if (!buffer) return;
+          const webpPath = getWebPPath(path);
 
           if (checkIfCanReachSaveLimit(path, buffer.info.size, SAVE_LIMIT)) {
             writeToFile(webpPath, buffer.data, OPERATIONS_TYPES.Compress);
@@ -186,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
             const webpBuffer = await getBufferForWebP(path, QUALITY);
             isWebPSmaller = webpBuffer.info.size < compressedBuffer.info.size;
             if (isWebPSmaller) {
-              const webpPath = path.replace(/\..{3,4}$/, ".webp");
+              const webpPath = getWebPPath(path);
               resultPath = webpPath;
               resultBuffer = webpBuffer;
             }
