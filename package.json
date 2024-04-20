@@ -38,6 +38,10 @@
       {
         "command": "image-editor.convertToWebP",
         "title": "Convert to WebP"
+      },
+      {
+        "command": "image-editor.compressWithAutoFormat",
+        "title": "Compress with autoformat"
       }
     ],
     "menus": {
@@ -67,6 +71,10 @@
         {
           "command": "image-editor.convertToWebP",
           "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif)$/i"
+        },
+        {
+          "command": "image-editor.compressWithAutoFormat",
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
         }
       ]
     },

@@ -12,6 +12,11 @@ import { writeToFile } from "./utils/writeToFile";
 import { filesWalker } from "./utils/filesWalker";
 import { bulkShowInputBox } from "./utils/bulkShowInputBox";
 import { checkIfCanReachSaveLimit } from "./utils/checkIfCanReachSaveLimit";
+import {
+  getBufferByFileType,
+  getBufferForWebP,
+} from "./utils/getBufferHelpers";
+import fs from "fs";
 
 sharp.cache(false);
 
@@ -150,11 +155,72 @@ export function activate(context: vscode.ExtensionContext) {
     },
   );
 
+  const compressWithAutoFormat = vscode.commands.registerCommand(
+    "image-editor.compressWithAutoFormat",
+    async (_currentFile, selectedFiles) => {
+      const QUALITY = getQualitySetting();
+      const SAVE_LIMIT = getSaveLimitSetting();
+
+      const operationResult = await filesWalker(
+        selectedFiles,
+        async (path: string) => {
+          const { format } = await sharp(path).metadata();
+          if (!format) return;
+
+          const compressedBuffer = await getBufferByFileType(
+            path,
+            format,
+            QUALITY,
+          );
+
+          if (!compressedBuffer) {
+            return;
+          }
+
+          let resultPath = path;
+          let resultBuffer = compressedBuffer;
+
+          let isWebPSmaller = false;
+
+          if (format === "png" || format === "jpeg") {
+            const webpBuffer = await getBufferForWebP(path, QUALITY);
+            isWebPSmaller = webpBuffer.info.size < compressedBuffer.info.size;
+            if (isWebPSmaller) {
+              const webpPath = path.replace(/\..{3,4}$/, ".webp");
+              resultPath = webpPath;
+              resultBuffer = webpBuffer;
+            }
+          }
+
+          if (
+            checkIfCanReachSaveLimit(path, resultBuffer.info.size, SAVE_LIMIT)
+          ) {
+            writeToFile(
+              resultPath,
+              resultBuffer.data,
+              OPERATIONS_TYPES.CompressWithAutoFormat,
+            );
+            if (isWebPSmaller) {
+              fs.unlinkSync(path);
+            }
+          } else {
+            throw new Error(`Save is less than ${SAVE_LIMIT}%`);
+          }
+        },
+      );
+      showMessageOfOperationResult(
+        operationResult,
+        OPERATIONS_TYPES.CompressWithAutoFormat,
+      );
+    },
+  );
+
   context.subscriptions.push(rotateLeft);
   context.subscriptions.push(rotateRight);
   context.subscriptions.push(compress);
   context.subscriptions.push(resize);
   context.subscriptions.push(convertToWebP);
+  context.subscriptions.push(compressWithAutoFormat);
 }
 
 export function deactivate() {}

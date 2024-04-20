@@ -24,6 +24,9 @@ const OPERATIONS: OperationsMessageType = {
   [OPERATIONS_TYPES.ConvertToWebP]: {
     successMessage: "Converted to WebP",
   },
+  [OPERATIONS_TYPES.CompressWithAutoFormat]: {
+    successMessage: "Compressed with auto format",
+  },
 };
 
 const getFilesCount = (numberOfFiles: number) => {

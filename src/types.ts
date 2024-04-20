@@ -4,4 +4,5 @@ export enum OPERATIONS_TYPES {
   "Compress" = "Compress",
   "Resize" = "Resize",
   "ConvertToWebP" = "Convert to WebP",
+  "CompressWithAutoFormat" = "Convert with auto format",
 }
