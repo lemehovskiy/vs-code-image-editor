@@ -32,6 +32,14 @@
         "title": "Resize by max width and height"
       },
       {
+        "command": "image-editor.resizeByWidth",
+        "title": "Resize by width"
+      },
+      {
+        "command": "image-editor.resizeByHeight",
+        "title": "Resize by height"
+      },
+      {
         "command": "image-editor.compress",
         "title": "Compress"
       },
@@ -62,6 +70,14 @@
         },
         {
           "command": "image-editor.resize",
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
+        },
+        {
+          "command": "image-editor.resizeByWidth",
+          "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
+        },
+        {
+          "command": "image-editor.resizeByHeight",
           "when": "resourceScheme == 'file' && resourceFilename =~ /\\.(png|jpg|jpeg|gif|webp)$/i"
         },
         {

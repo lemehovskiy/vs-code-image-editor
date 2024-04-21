@@ -19,6 +19,7 @@ import {
 import fs from "fs";
 import { getWebPPath } from "./utils/getWebPPath";
 import { writeFileWhenPassSaveLimit } from "./utils/writeFileWhenPassSaveLimit";
+import { resizeByOneAxis } from "./operations/resize";
 
 sharp.cache(false);
 
@@ -112,6 +113,20 @@ export function activate(context: vscode.ExtensionContext) {
         );
         showMessageOfOperationResult(operationResult, OPERATIONS_TYPES.Resize);
       }
+    },
+  );
+
+  const resizeByWidth = vscode.commands.registerCommand(
+    "image-editor.resizeByWidth",
+    async (_currentFile, selectedFiles) => {
+      resizeByOneAxis(selectedFiles, "width");
+    },
+  );
+
+  const resizeByHeigh = vscode.commands.registerCommand(
+    "image-editor.resizeByHeight",
+    async (_currentFile, selectedFiles) => {
+      resizeByOneAxis(selectedFiles, "height");
     },
   );
 
@@ -220,6 +235,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(rotateRight);
   context.subscriptions.push(compress);
   context.subscriptions.push(resize);
+  context.subscriptions.push(resizeByWidth);
+  context.subscriptions.push(resizeByHeigh);
   context.subscriptions.push(convertToWebP);
   context.subscriptions.push(compressWithAutoFormat);
 }
