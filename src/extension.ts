@@ -6,6 +6,7 @@ import {
   getQualitySetting,
   checkIfFormatSupportedForResize,
   getSaveLimitSetting,
+  getWebPDeleteOriginalSetting,
 } from "./utils/getSettingsHelpers";
 import { rotate } from "./operations/rotate";
 import { writeToFile } from "./utils/writeToFile";
@@ -119,6 +120,7 @@ export function activate(context: vscode.ExtensionContext) {
     async (_currentFile, selectedFiles) => {
       const QUALITY = getQualitySetting();
       const SAVE_LIMIT = getSaveLimitSetting();
+      const DELETE_ORIGINAL = getWebPDeleteOriginalSetting();
 
       const operationResult = await filesWalker(
         selectedFiles,
@@ -137,7 +139,9 @@ export function activate(context: vscode.ExtensionContext) {
             OPERATIONS_TYPES.ConvertToWebP,
           );
 
-          fs.unlinkSync(path);
+          if (DELETE_ORIGINAL) {
+            fs.unlinkSync(path);
+          }
         },
       );
       showMessageOfOperationResult(
@@ -152,6 +156,7 @@ export function activate(context: vscode.ExtensionContext) {
     async (_currentFile, selectedFiles) => {
       const QUALITY = getQualitySetting();
       const SAVE_LIMIT = getSaveLimitSetting();
+      const DELETE_ORIGINAL = getWebPDeleteOriginalSetting();
 
       const operationResult = await filesWalker(
         selectedFiles,
@@ -199,7 +204,7 @@ export function activate(context: vscode.ExtensionContext) {
             OPERATIONS_TYPES.CompressWithAutoFormat,
           );
 
-          if (isWebPResult) {
+          if (isWebPResult && DELETE_ORIGINAL) {
             fs.unlinkSync(path);
           }
         },

@@ -102,6 +102,11 @@
           "type": "number",
           "default": 15,
           "description": "Save limit in percents (optional, default 15)"
+        },
+        "image-editor.webp-delete-original": {
+          "type": "boolean",
+          "default": true,
+          "description": "Should a file be deleted when converting to WebP (optional, default true)"
         }
       }
     }

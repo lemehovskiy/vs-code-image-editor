@@ -35,3 +35,6 @@ export const getOverwriteOriginalSetting = () =>
 
 export const getSaveLimitSetting = () =>
   getConfiguration("save-limit") as number;
+
+export const getWebPDeleteOriginalSetting = () =>
+  getConfiguration("webp-delete-original") as boolean;
