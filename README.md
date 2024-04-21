@@ -6,11 +6,11 @@ The Image Editor extension for Visual Studio Code provides convenient tools for 
 
 ## Features
 
-1. **Rotate Images:** Easily rotate images to desired angles.
-2. **Compress Images:** Reduce the file size of images while maintaining quality.
-3. **Convert to WebP Format:** Convert images to WebP format with adjustable compression.
-4. **Compress with auto format:** This feature intelligently combines compression and conversion to WebP formats. It compares the results of both operations and applies the one with the better savings. For instance, suppose you have an image that can achieve a 20% reduction in file size through WebP conversion and only a 15% reduction through compression alone. In that case, the extension will automatically convert the image to WebP format for optimal file size reduction.
-5. **Resize Images:** Resize images to fit specific dimensions. (be aware in all resizing operation original aspect ratio will be kept)
+1. **Compress Images:** Reduce the file size of images while maintaining quality.
+2. **Convert to WebP Format:** Convert images to WebP format with adjustable compression.
+3. **Compress with auto format:** This feature intelligently combines compression and conversion to WebP formats. It compares the results of both operations and applies the one with the better savings. For instance, suppose you have an image that can achieve a 20% reduction in file size through WebP conversion and only a 15% reduction through compression alone. In that case, the extension will automatically convert the image to WebP format for optimal file size reduction.
+4. **Resize Images:** Resize images to fit specific dimensions. (be aware in all resizing operation original aspect ratio will be kept)
+5. **Rotate Images:** Easily rotate images to desired angles.
 
 ## Usage
 
