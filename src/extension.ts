@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
           if (!buffer) return;
           const webpPath = getWebPPath(path);
 
-          writeFileWhenPassSaveLimit(
+          const writeOk = writeFileWhenPassSaveLimit(
             path,
             webpPath,
             buffer,
@@ -154,7 +154,7 @@ export function activate(context: vscode.ExtensionContext) {
             OPERATIONS_TYPES.ConvertToWebP,
           );
 
-          if (DELETE_ORIGINAL) {
+          if (writeOk && DELETE_ORIGINAL) {
             fs.unlinkSync(path);
           }
         },

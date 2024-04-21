@@ -19,4 +19,6 @@ export const writeToFile = (
   }
 
   fs.writeFileSync(newPath, buffer);
+
+  return true;
 };
