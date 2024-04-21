@@ -4,7 +4,7 @@ import { showMessageOfOperationResult } from "./utils/showMessageOfOperationResu
 import { OPERATIONS_TYPES } from "./types";
 import {
   getQualitySetting,
-  checkIfFormatSupported,
+  checkIfFormatSupportedForResize,
   getSaveLimitSetting,
 } from "./utils/getSettingsHelpers";
 import { rotate } from "./operations/rotate";
@@ -93,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
           async (path: string) => {
             const meta = await sharp(path).metadata();
 
-            if (!checkIfFormatSupported(meta.format)) {
+            if (!checkIfFormatSupportedForResize(meta.format)) {
               return;
             }
 
@@ -125,9 +125,6 @@ export function activate(context: vscode.ExtensionContext) {
         async (path: string) => {
           const { format } = await sharp(path).metadata();
           if (!format) return;
-          if (!checkIfFormatSupported(format)) {
-            return;
-          }
           const buffer = await getBufferForWebP(path, format, QUALITY);
           if (!buffer) return;
           const webpPath = getWebPPath(path);

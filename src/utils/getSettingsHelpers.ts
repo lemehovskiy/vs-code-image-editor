@@ -1,27 +1,28 @@
 import * as vscode from "vscode";
 import {
-  SUPPORTED_FORMATS,
+  SUPPORTED_FORMATS_FOR_RESIZE,
   SUPPORTED_FORMATS_FOR_COMPRESS,
   SUPPORTED_FORMATS_FOR_WEBP_CONVERTING,
 } from "../constants";
+import { FormatTypes, InputFormatType } from "../types";
 
-export const checkIfFormatSupported = (format: string | undefined) => {
-  return format ? SUPPORTED_FORMATS.includes(format) : false;
+const checkFormat = (
+  inputFormat: InputFormatType,
+  supportedFormats: Partial<FormatTypes>,
+) => {
+  return supportedFormats.some((format) => format === inputFormat);
 };
 
-export const checkIfSupportedFormatForCompress = (inputFormat: string) => {
-  return SUPPORTED_FORMATS_FOR_COMPRESS.some(
-    (format) => format === inputFormat,
-  );
-};
+export const checkIfFormatSupportedForResize = (inputFormat: InputFormatType) =>
+  checkFormat(inputFormat, SUPPORTED_FORMATS_FOR_RESIZE);
+
+export const checkIfSupportedFormatForCompress = (
+  inputFormat: InputFormatType,
+) => checkFormat(inputFormat, SUPPORTED_FORMATS_FOR_COMPRESS);
 
 export const checkIfSupportedFormatForConvetingToWebP = (
-  inputFormat: string,
-) => {
-  return SUPPORTED_FORMATS_FOR_WEBP_CONVERTING.some(
-    (format) => format === inputFormat,
-  );
-};
+  inputFormat: InputFormatType,
+) => checkFormat(inputFormat, SUPPORTED_FORMATS_FOR_WEBP_CONVERTING);
 
 const getConfiguration = (key: string) => {
   return vscode.workspace.getConfiguration().get(`image-editor.${key}`);
